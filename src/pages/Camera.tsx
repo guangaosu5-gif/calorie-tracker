@@ -219,9 +219,12 @@ export const Camera: React.FC = () => {
               autoPlay
               playsInline
               muted
+              disablePictureInPicture
+              controls={false}
               className="w-full h-full object-cover"
+              style={{ objectFit: 'cover' }}
             />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
               <div className="text-center">
                 <div className="relative w-64 h-64 overflow-hidden">
                   {foodSlides.map((slide, index) => (
