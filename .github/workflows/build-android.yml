@@ -27,14 +27,6 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Create missing Capacitor directories
-        run: |
-          mkdir -p android/capacitor-cordova-android-plugins/src/main/java
-          mkdir -p android/capacitor-cordova-android-plugins/src/main/res
-          touch android/capacitor-cordova-android-plugins/cordova.variables.gradle
-          touch android/capacitor-cordova-android-plugins/build.gradle
-          touch android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
-
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
