@@ -151,8 +151,8 @@ export const History: React.FC = () => {
               <CalendarIcon size={20} style={{ color: getThemeColor() }} />
             </div>
             <div className="text-left">
-              <div className="text-sm text-gray-500">选择日期</div>
-              <div className="font-medium text-gray-800">{formatDate(selectedDate)}</div>
+              <div className="text-sm text-gray-500">{formatDate(selectedDate)}</div>
+              <div className="font-medium text-gray-800">{selectedDate}</div>
             </div>
           </div>
           <ChevronRight size={20} className="text-gray-400" />
