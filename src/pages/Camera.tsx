@@ -14,19 +14,6 @@ const mealTypeOptions: { type: MealType; label: string; icon: string }[] = [
   { type: 'snack', label: '加餐', icon: '🍪' },
 ];
 
-const foodSlides = [
-  { emoji: '🍕', name: '披萨', cal: '266' },
-  { emoji: '🍔', name: '汉堡', cal: '540' },
-  { emoji: '🍜', name: '面条', cal: '284' },
-  { emoji: '🍣', name: '寿司', cal: '93' },
-  { emoji: '🥗', name: '沙拉', cal: '152' },
-  { emoji: '🍗', name: '炸鸡', cal: '295' },
-  { emoji: '🥟', name: '饺子', cal: '253' },
-  { emoji: '🍱', name: '便当', cal: '500' },
-  { emoji: '🥘', name: '火锅', cal: '450' },
-  { emoji: '🍰', name: '蛋糕', cal: '350' },
-];
-
 export const Camera: React.FC = () => {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
@@ -43,18 +30,12 @@ export const Camera: React.FC = () => {
   const [identifiedFood, setIdentifiedFood] = useState<any>(null);
   const [weight, setWeight] = useState<string>('100');
   const [mealType, setMealType] = useState<MealType>('breakfast');
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     startCamera();
     
-    const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % foodSlides.length);
-    }, 3000);
-    
     return () => {
       stopCamera();
-      clearInterval(slideInterval);
     };
   }, []);
 
@@ -213,39 +194,16 @@ export const Camera: React.FC = () => {
 
       <div className="relative aspect-[3/4]">
         {!capturedImage ? (
-          <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              disablePictureInPicture
-              controls={false}
-              className="w-full h-full object-cover"
-              style={{ objectFit: 'cover' }}
-            />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="relative w-64 h-64 overflow-hidden">
-                  {foodSlides.map((slide, index) => (
-                    <div
-                      key={index}
-                      className="absolute inset-0 flex flex-col items-center justify-center transition-all duration-700"
-                      style={{
-                        opacity: currentSlide === index ? 1 : 0,
-                        transform: currentSlide === index ? 'scale(1)' : 'scale(0.8)',
-                        zIndex: currentSlide === index ? 10 : 1,
-                      }}
-                    >
-                      <div className="text-7xl mb-3">{slide.emoji}</div>
-                      <div className="text-white font-medium text-lg">{slide.name}</div>
-                      <div className="text-white/80 text-sm">{slide.cal} 卡/100g</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            disablePictureInPicture
+            controls={false}
+            className="w-full h-full object-cover"
+            style={{ objectFit: 'cover' }}
+          />
         ) : (
           <img 
             src={capturedImage} 

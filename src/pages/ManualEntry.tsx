@@ -203,13 +203,13 @@ export const ManualEntry: React.FC = () => {
           <div className="space-y-4">
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-700">食物重量（克）</label>
-              <div className="flex items-center gap-3 mx-auto max-w-xs">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
                     const num = parseInt(weight) || 0;
                     setWeight(Math.max(0, num - 50).toString());
                   }}
-                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700 flex-shrink-0"
                 >
                   -
                 </button>
@@ -217,18 +217,18 @@ export const ManualEntry: React.FC = () => {
                   type="number"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
-                  className="flex-1 text-center text-2xl font-bold text-gray-800 bg-white border border-gray-200 rounded-xl py-3 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-4 py-2.5 text-sm text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center"
                 />
                 <button
                   onClick={() => {
                     const num = parseInt(weight) || 0;
                     setWeight((num + 50).toString());
                   }}
-                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700 flex-shrink-0"
                 >
                   +
                 </button>
-                <span className="text-gray-500 font-medium w-6">g</span>
+                <span className="text-gray-500 font-medium w-6 flex-shrink-0">g</span>
               </div>
             </div>
 
