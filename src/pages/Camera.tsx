@@ -104,8 +104,34 @@ export const Camera: React.FC = () => {
     setIsIdentifying(true);
     
     setTimeout(() => {
-      const randomFood = foods[Math.floor(Math.random() * foods.length)];
-      setIdentifiedFood(randomFood);
+      const foodCategories = {
+        主食: ['米饭', '馒头', '面条', '面包', '饺子', '包子', '粥', '煎饼', '油条', '蛋糕'],
+        肉类: ['鸡肉', '牛肉', '猪肉', '鱼肉', '鸡蛋', '鸭蛋', '鹌鹑蛋', '火腿', '香肠', '培根'],
+        蔬菜: ['白菜', '青菜', '黄瓜', '西红柿', '土豆', '胡萝卜', '西兰花', '菠菜', '生菜', '芹菜'],
+        水果: ['苹果', '香蕉', '橙子', '葡萄', '西瓜', '草莓', '蓝莓', '芒果', '桃子', '梨'],
+        饮品: ['牛奶', '豆浆', '果汁', '可乐', '茶', '咖啡', '酸奶', '矿泉水', '啤酒', '红酒'],
+        豆制品: ['豆腐', '豆浆', '豆干', '腐竹', '豆皮', '豆筋', '豆腐脑', '臭豆腐', '豆豉', '腐乳']
+      };
+
+      const foodDescriptions = [
+        { keywords: ['饼', '煎饼', '烙饼', '蛋饼', '手抓饼'], foods: ['煎饼', '鸡蛋'] },
+        { keywords: ['饭', '米饭', '炒饭'], foods: ['米饭'] },
+        { keywords: ['面', '面条', '拉面', '泡面'], foods: ['面条'] },
+        { keywords: ['肉', '牛肉', '鸡肉', '猪肉'], foods: ['牛肉', '鸡肉', '猪肉'] },
+        { keywords: ['菜', '青菜', '白菜', '菠菜'], foods: ['白菜', '青菜', '菠菜'] },
+        { keywords: ['蛋', '鸡蛋', '煎蛋'], foods: ['鸡蛋'] },
+        { keywords: ['水果', '苹果', '香蕉', '橙子'], foods: ['苹果', '香蕉', '橙子'] },
+        { keywords: ['蛋糕', '面包', '甜点'], foods: ['蛋糕', '面包'] },
+        { keywords: ['汤', '粥'], foods: ['粥'] },
+      ];
+
+      const randomCategory = Object.keys(foodCategories)[Math.floor(Math.random() * Object.keys(foodCategories).length)];
+      const randomFoodName = foodCategories[randomCategory as keyof typeof foodCategories][Math.floor(Math.random() * foodCategories[randomCategory as keyof typeof foodCategories].length)];
+      
+      const matchedFood = foods.find(f => f.name === randomFoodName) || 
+                         foods[Math.floor(Math.random() * foods.length)];
+      
+      setIdentifiedFood(matchedFood);
       setIsIdentifying(false);
     }, 2000);
   };

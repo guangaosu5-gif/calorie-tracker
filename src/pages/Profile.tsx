@@ -333,10 +333,10 @@ export const Profile: React.FC = () => {
 
       {/* Phone Modal */}
       {showPhoneModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-[320px] p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">绑定手机号</h3>
+              <h3 className="text-base font-bold text-gray-800">绑定手机号</h3>
               <button
                 onClick={() => setShowPhoneModal(false)}
                 className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
@@ -344,44 +344,44 @@ export const Profile: React.FC = () => {
                 <X size={20} />
               </button>
             </div>
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-5">
               <div>
                 <label className="text-sm text-gray-600 mb-2 block">手机号</label>
                 <input
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-4 py-3 text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-4 py-2.5 text-sm text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="请输入手机号"
                 />
               </div>
               <div>
                 <label className="text-sm text-gray-600 mb-2 block">验证码</label>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <input
                     type="text"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
-                    className="flex-1 px-4 py-3 text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="flex-1 px-4 py-2.5 text-sm text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     placeholder="请输入验证码"
                   />
-                  <button className="px-4 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-300 transition-colors whitespace-nowrap">
+                  <button className="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-300 transition-colors whitespace-nowrap">
                     获取验证码
                   </button>
                 </div>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => setShowPhoneModal(false)}
-                className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors"
+                className="flex-1 bg-gray-100 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm"
               >
                 取消
               </button>
               <button
                 onClick={handleBindPhone}
                 disabled={!phoneNumber.trim() || !verificationCode.trim()}
-                className={`flex-1 font-bold py-3 rounded-xl transition-colors ${
+                className={`flex-1 font-medium py-2.5 rounded-xl transition-colors text-sm ${
                   phoneNumber.trim() && verificationCode.trim()
                     ? 'bg-emerald-500 text-white hover:bg-emerald-600'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
