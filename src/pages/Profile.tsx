@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, LogOut, Phone, Camera, Edit2, Check, X, ChevronRight, Image as ImageIcon, Palette, Droplets, Image as ImageBgIcon } from 'lucide-react';
+import { ArrowLeft, LogOut, Phone, Camera, Edit2, Check, X, ChevronRight, Image as ImageIcon, Palette, Droplets, Image as ImageBgIcon, Target } from 'lucide-react';
 import { BottomNav } from '../components/BottomNav';
 import { useAppStore } from '../store/useAppStore';
 import { presetColors, presetGradients, type Theme } from '../types';
@@ -12,9 +12,13 @@ export const Profile: React.FC = () => {
   const bindPhone = useAppStore((state) => state.bindPhone);
   const updateAvatar = useAppStore((state) => state.updateAvatar);
   const updateUserName = useAppStore((state) => state.updateUserName);
+  const setDailyGoal = useAppStore((state) => state.setDailyGoal);
   const updateTheme = useAppStore((state) => state.updateTheme);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const themeImageInputRef = useRef<HTMLInputElement>(null);
+
+  const [showGoalModal, setShowGoalModal] = useState(false);
+  const [tempGoal, setTempGoal] = useState(2000);
 
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -245,26 +249,51 @@ export const Profile: React.FC = () => {
         </div>
 
         {/* Theme Settings Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="font-bold text-gray-800">主题设置</h3>
-          </div>
-          
-          <div className="divide-y divide-gray-100">
-            <button 
-              onClick={() => setShowThemeModal(true)}
-              className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <Palette size={20} className="text-purple-500" />
-                </div>
-                <span className="font-medium text-gray-800">个性化主题</span>
-              </div>
-              <ChevronRight size={16} className="text-gray-400" />
-            </button>
-          </div>
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="font-bold text-gray-800">主题设置</h3>
         </div>
+        
+        <div className="divide-y divide-gray-100">
+          <button 
+            onClick={() => setShowThemeModal(true)}
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Palette size={20} className="text-purple-500" />
+              </div>
+              <span className="font-medium text-gray-800">个性化主题</span>
+            </div>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+        </div>
+      </div>
+
+      {/* Daily Goal Section */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="font-bold text-gray-800">目标设置</h3>
+        </div>
+        
+        <div className="divide-y divide-gray-100">
+          <button 
+            onClick={() => { setShowGoalModal(true); setTempGoal(user?.dailyCalorieGoal || 2000); }}
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Target size={20} className="text-orange-500" />
+              </div>
+              <span className="font-medium text-gray-800">每日目标卡路里</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">{user?.dailyCalorieGoal || 2000} 卡</span>
+              <ChevronRight size={16} className="text-gray-400" />
+            </div>
+          </button>
+        </div>
+      </div>
 
         {/* Settings Section */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -706,6 +735,63 @@ export const Profile: React.FC = () => {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Goal Setting Modal */}
+      {showGoalModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-[320px] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-gray-800">设置每日目标</h3>
+              <button
+                onClick={() => setShowGoalModal(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="mb-5">
+              <label className="text-sm text-gray-600 mb-2 block">目标卡路里（卡）</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setTempGoal(Math.max(500, tempGoal - 100))}
+                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={tempGoal}
+                  onChange={(e) => setTempGoal(parseInt(e.target.value) || 2000)}
+                  className="flex-1 text-center text-xl font-bold text-gray-800 bg-gray-100 rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <button
+                  onClick={() => setTempGoal(tempGoal + 100)}
+                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowGoalModal(false)}
+                className="flex-1 bg-gray-100 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  setDailyGoal(tempGoal);
+                  setShowGoalModal(false);
+                }}
+                className="flex-1 bg-emerald-500 text-white font-medium py-2.5 rounded-xl hover:bg-emerald-600 transition-colors text-sm"
+              >
+                保存
+              </button>
+            </div>
           </div>
         </div>
       )}

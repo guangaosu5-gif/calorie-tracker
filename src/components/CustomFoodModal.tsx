@@ -126,18 +126,18 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
         className="absolute inset-0 bg-black/50" 
         onClick={handleClose}
       />
-      <div className="relative bg-white rounded-t-3xl w-full max-w-lg p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-800">添加自定义食物</h3>
+      <div className="relative bg-white rounded-t-3xl w-full max-w-[320px] p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-gray-800">添加自定义食物</h3>
           <button
             onClick={handleClose}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">选择食物类型</label>
             <div className="grid grid-cols-3 gap-2">
@@ -165,7 +165,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
               placeholder="请输入食物名称"
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
-              className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+              className={`w-full px-4 py-2.5 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                 foundFood 
                   ? 'border-green-500 focus:border-green-500 focus:ring-green-200' 
                   : foodName.trim() && !foundFood
@@ -195,17 +195,17 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
                 placeholder="请输入热量值"
                 value={customCalories}
                 onChange={(e) => setCustomCalories(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-orange-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
               />
             </div>
           )}
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">食用重量（克）</label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 mx-auto max-w-xs">
               <button
                 onClick={decreaseWeight}
-                className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
               >
                 -
               </button>
@@ -213,15 +213,15 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="flex-1 text-center text-2xl font-bold text-gray-800 bg-gray-50 border border-gray-200 rounded-xl py-3 focus:outline-none focus:border-emerald-500"
+                className="flex-1 text-center text-xl font-bold text-gray-800 bg-gray-50 border border-gray-200 rounded-xl py-2.5 focus:outline-none focus:border-emerald-500"
               />
               <button
                 onClick={increaseWeight}
-                className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
               >
                 +
               </button>
-              <span className="text-gray-500 font-medium w-8">g</span>
+              <span className="text-gray-500 font-medium w-6">g</span>
             </div>
           </div>
 
