@@ -202,7 +202,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">食用重量（克）</label>
-            <div className="flex items-center gap-3 mx-auto max-w-xs">
+            <div className="flex items-center gap-3 mx-auto">
               <button
                 onClick={decreaseWeight}
                 className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-xl font-bold text-gray-700"
@@ -213,7 +213,7 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="flex-1 text-center text-xl font-bold text-gray-800 bg-gray-50 border border-gray-200 rounded-xl py-2.5 focus:outline-none focus:border-emerald-500"
+                className="w-full px-4 py-2.5 text-sm text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center"
               />
               <button
                 onClick={increaseWeight}

@@ -765,7 +765,7 @@ export const Profile: React.FC = () => {
                   type="number"
                   value={tempGoal}
                   onChange={(e) => setTempGoal(parseInt(e.target.value) || 2000)}
-                  className="flex-1 text-center text-xl font-bold text-gray-800 bg-gray-100 rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-4 py-2.5 text-sm text-gray-800 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center"
                 />
                 <button
                   onClick={() => setTempGoal(tempGoal + 100)}

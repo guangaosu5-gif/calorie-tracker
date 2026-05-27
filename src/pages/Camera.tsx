@@ -223,7 +223,7 @@ export const Camera: React.FC = () => {
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <div className="text-center">
-                <div className="relative w-48 h-48 overflow-hidden">
+                <div className="relative w-64 h-64 overflow-hidden">
                   {foodSlides.map((slide, index) => (
                     <div
                       key={index}
