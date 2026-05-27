@@ -148,7 +148,7 @@ export const Camera: React.FC = () => {
         { keywords: ['鱼', '鱼', '烤鱼', '酸菜鱼', '清蒸鱼'], foods: ['鱼肉'] },
       ];
 
-      let targetFoods = [];
+      let targetFoods: string[] = [];
       for (const desc of foodDescriptions) {
         // 简单的随机匹配，模拟AI的食物识别
         if (Math.random() > 0.7) {
