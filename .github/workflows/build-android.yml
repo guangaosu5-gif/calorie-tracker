@@ -27,6 +27,9 @@ jobs:
       - name: Build web app
         run: npm run build
 
+      - name: Sync web assets to Android
+        run: npx cap sync android
+
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
