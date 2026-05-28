@@ -14,6 +14,15 @@ const mealTypeOptions: { type: MealType; label: string; icon: string }[] = [
   { type: 'snack', label: '加餐', icon: '🍪' },
 ];
 
+const dietFoods = [
+  { emoji: '🥗', name: '鸡胸肉沙拉', cal: '185' },
+  { emoji: '🍳', name: '水煮蛋', cal: '143' },
+  { emoji: '🥑', name: '牛油果沙拉', cal: '250' },
+  { emoji: '🍠', name: '烤红薯', cal: '86' },
+  { emoji: '🥩', name: '清蒸鱼', cal: '120' },
+  { emoji: '🥙', name: '蔬菜卷', cal: '150' },
+];
+
 export const Camera: React.FC = () => {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
@@ -30,12 +39,18 @@ export const Camera: React.FC = () => {
   const [identifiedFood, setIdentifiedFood] = useState<any>(null);
   const [weight, setWeight] = useState<string>('100');
   const [mealType, setMealType] = useState<MealType>('breakfast');
+  const [currentFoodIndex, setCurrentFoodIndex] = useState(0);
 
   useEffect(() => {
     startCamera();
     
+    const foodInterval = setInterval(() => {
+      setCurrentFoodIndex((prev) => (prev + 1) % dietFoods.length);
+    }, 3000);
+    
     return () => {
       stopCamera();
+      clearInterval(foodInterval);
     };
   }, []);
 
@@ -194,16 +209,39 @@ export const Camera: React.FC = () => {
 
       <div className="relative aspect-[3/4]">
         {!capturedImage ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            disablePictureInPicture
-            controls={false}
-            className="w-full h-full object-cover"
-            style={{ objectFit: 'cover' }}
-          />
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              disablePictureInPicture
+              controls={false}
+              className="w-full h-full object-cover"
+              style={{ objectFit: 'cover' }}
+            />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+              <div className="text-center">
+                <div className="relative w-48 h-48 overflow-hidden">
+                  {dietFoods.map((food, index) => (
+                    <div
+                      key={index}
+                      className="absolute inset-0 flex flex-col items-center justify-center transition-all duration-700"
+                      style={{
+                        opacity: currentFoodIndex === index ? 1 : 0,
+                        transform: currentFoodIndex === index ? 'scale(1)' : 'scale(0.8)',
+                        zIndex: currentFoodIndex === index ? 10 : 1,
+                      }}
+                    >
+                      <div className="text-6xl mb-3">{food.emoji}</div>
+                      <div className="text-white font-medium text-lg">{food.name}</div>
+                      <div className="text-white/80 text-sm">{food.cal} 卡/100g</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <img 
             src={capturedImage} 
