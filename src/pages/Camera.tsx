@@ -158,7 +158,9 @@ export const Camera: React.FC = () => {
 
     } catch (error) {
       console.error('识别失败:', error);
-      setErrorMessage('识别失败，请检查网络或尝试手动搜索');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('详细错误:', errorMessage);
+      setErrorMessage(`识别失败: ${errorMessage}`);
     } finally {
       setIsIdentifying(false);
     }
