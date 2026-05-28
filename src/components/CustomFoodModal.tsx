@@ -121,12 +121,12 @@ export const CustomFoodModal: React.FC<CustomFoodModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div 
         className="absolute inset-0 bg-black/50" 
         onClick={handleClose}
       />
-      <div className="relative bg-white rounded-t-3xl w-full max-w-[320px] p-5">
+      <div className="relative bg-white rounded-3xl w-full max-w-[320px] p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-800">添加自定义食物</h3>
           <button
