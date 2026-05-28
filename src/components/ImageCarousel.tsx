@@ -23,8 +23,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     if (!autoPlay) return;
 
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-      onSlideChange?.((prev) => (prev + 1) % images.length);
+      setCurrentIndex((prev) => {
+        const nextIndex = (prev + 1) % images.length;
+        onSlideChange?.(nextIndex);
+        return nextIndex;
+      });
     }, interval);
 
     return () => clearInterval(timer);

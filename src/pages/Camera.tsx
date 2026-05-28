@@ -91,6 +91,11 @@ export const Camera: React.FC = () => {
     }
   };
 
+  const cancelCamera = () => {
+    stopCamera();
+    setShowCamera(false);
+  };
+
   const selectFromGallery = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -255,24 +260,45 @@ export const Camera: React.FC = () => {
       </div>
 
       {!capturedImage ? (
-        <div className="absolute bottom-24 left-0 right-0 flex flex-col items-center gap-4 px-6">
-          <div className="flex items-center gap-6">
-            <button
-              onClick={selectFromGallery}
-              className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
-            >
-              <ImageIcon size={24} className="text-white" />
-            </button>
-            <button
-              onClick={handleTakePhoto}
-              className="w-20 h-20 bg-white rounded-full border-4 border-white/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
-            >
-              <div className="w-16 h-16 rounded-full" style={{ backgroundColor: getThemeColor() }} />
-            </button>
-            <div className="w-14 h-14" />
+        showCamera ? (
+          <div className="absolute bottom-24 left-0 right-0 flex flex-col items-center gap-4 px-6">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={cancelCamera}
+                className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+              >
+                <div className="text-white text-sm">取消</div>
+              </button>
+              <button
+                onClick={capturePhoto}
+                className="w-20 h-20 bg-white rounded-full border-4 border-white/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+              >
+                <div className="w-16 h-16 rounded-full" style={{ backgroundColor: getThemeColor() }} />
+              </button>
+              <div className="w-14 h-14" />
+            </div>
+            <p className="text-white/80 text-sm">点击拍照</p>
           </div>
-          <p className="text-white/80 text-sm">对准食物拍照，或从相册选择</p>
-        </div>
+        ) : (
+          <div className="absolute bottom-24 left-0 right-0 flex flex-col items-center gap-4 px-6">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={selectFromGallery}
+                className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+              >
+                <ImageIcon size={24} className="text-white" />
+              </button>
+              <button
+                onClick={handleTakePhoto}
+                className="w-20 h-20 bg-white rounded-full border-4 border-white/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+              >
+                <div className="w-16 h-16 rounded-full" style={{ backgroundColor: getThemeColor() }} />
+              </button>
+              <div className="w-14 h-14" />
+            </div>
+            <p className="text-white/80 text-sm">对准食物拍照，或从相册选择</p>
+          </div>
+        )
       ) : showManualSearch ? (
         <div className="bg-white rounded-t-3xl -mt-8 relative z-10 p-6 space-y-4 max-h-[60vh] overflow-y-auto">
           <div className="relative">
