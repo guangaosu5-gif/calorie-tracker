@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const BAIDU_API_KEY = '9Itu1fsnxoHX77eNMmHPM5Fp';
 const BAIDU_SECRET_KEY = 'PCsIBg8xXnkeh40DI0KlMOhCLKvGXg4W';
 
@@ -8,7 +6,7 @@ interface AccessTokenResponse {
   expires_in: number;
 }
 
-interface BaiduDishResult {
+export interface BaiduDishResult {
   name: string;
   calorie: number;
   probability: number;
@@ -33,21 +31,21 @@ const getAccessToken = async (): Promise<string> => {
   }
 
   try {
-    const response = await axios.post<AccessTokenResponse>(
-      'https://aip.baidubce.com/oauth/2.0/token',
-      null,
+    const response = await fetch(
+      `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${BAIDU_API_KEY}&client_secret=${BAIDU_SECRET_KEY}`,
       {
-        params: {
-          grant_type: 'client_credentials',
-          client_id: BAIDU_API_KEY,
-          client_secret: BAIDU_SECRET_KEY,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       }
     );
 
+    const data: AccessTokenResponse = await response.json();
+
     tokenCache = {
-      accessToken: response.data.access_token,
-      expiresAt: now + response.data.expires_in * 1000 - 60000,
+      accessToken: data.access_token,
+      expiresAt: now + data.expires_in * 1000 - 60000,
     };
 
     return tokenCache.accessToken;
@@ -61,27 +59,25 @@ export const recognizeDish = async (imageBase64: string): Promise<BaiduDishResul
   try {
     const accessToken = await getAccessToken();
     
-    const response = await axios.post<BaiduDishResponse>(
-      'https://aip.baidubce.com/rest/2.0/image-classify/v2/dish',
-      null,
+    const response = await fetch(
+      `https://aip.baidubce.com/rest/2.0/image-classify/v2/dish?image=${encodeURIComponent(imageBase64)}&top_num=5&access_token=${accessToken}`,
       {
-        params: {
-          image: imageBase64,
-          top_num: 5,
-          access_token: accessToken,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       }
     );
 
-    if (response.data.error_code) {
-      throw new Error(response.data.error_msg || '识别失败');
+    const data: BaiduDishResponse = await response.json();
+
+    if (data.error_code) {
+      throw new Error(data.error_msg || '识别失败');
     }
 
-    return response.data.result;
+    return data.result;
   } catch (error) {
     console.error('菜品识别失败:', error);
     throw error;
   }
 };
-
-export type { BaiduDishResult };
