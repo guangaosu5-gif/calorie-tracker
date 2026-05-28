@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Check, Loader2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Check, Loader2, Image as ImageIcon, Search } from 'lucide-react';
 import { BottomNav } from '../components/BottomNav';
 import { useAppStore } from '../store/useAppStore';
-import { foods } from '../data/foods';
-import { MealType } from '../types';
+import { foods, matchFoodFromDatabase } from '../data/foods';
+import { MealType, Food } from '../types';
 import { useTheme } from '../hooks/useTheme';
+import { recognizeDish, BaiduDishResult } from '../utils/baiduAI';
 
 const mealTypeOptions: { type: MealType; label: string; icon: string }[] = [
   { type: 'breakfast', label: '早餐', icon: '🌅' },
@@ -19,9 +20,14 @@ const dietFoods = [
   { emoji: '🍳', name: '水煮蛋', cal: '143' },
   { emoji: '🥑', name: '牛油果沙拉', cal: '250' },
   { emoji: '🍠', name: '烤红薯', cal: '86' },
-  { emoji: '🥩', name: '清蒸鱼', cal: '120' },
+  { id: 'meat_027', name: '清蒸鱼', cal: '120' },
   { emoji: '🥙', name: '蔬菜卷', cal: '150' },
 ];
+
+interface IdentifiedCandidate {
+  apiResult: BaiduDishResult;
+  localFood: Food | null;
+}
 
 export const Camera: React.FC = () => {
   const navigate = useNavigate();
@@ -36,10 +42,14 @@ export const Camera: React.FC = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isIdentifying, setIsIdentifying] = useState(false);
-  const [identifiedFood, setIdentifiedFood] = useState<any>(null);
+  const [identifiedCandidates, setIdentifiedCandidates] = useState<IdentifiedCandidate[]>([]);
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [weight, setWeight] = useState<string>('100');
   const [mealType, setMealType] = useState<MealType>('breakfast');
   const [currentFoodIndex, setCurrentFoodIndex] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showManualSearch, setShowManualSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     startCamera();
@@ -109,84 +119,89 @@ export const Camera: React.FC = () => {
 
   const retakePhoto = () => {
     setCapturedImage(null);
-    setIdentifiedFood(null);
+    setIdentifiedCandidates([]);
+    setSelectedFood(null);
+    setErrorMessage(null);
+    setShowManualSearch(false);
+    setSearchQuery('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     startCamera();
   };
 
-  const identifyFood = () => {
-    setIsIdentifying(true);
+  const identifyFood = async () => {
+    if (!capturedImage) return;
     
-    setTimeout(() => {
-      const foodCategories = {
-        主食: ['米饭', '馒头', '面条', '面包', '饺子', '包子', '粥', '煎饼', '油条', '蛋糕', '炒饭', '米粉', '米线', '年糕', '粽子'],
-        肉类: ['鸡肉', '牛肉', '猪肉', '鱼肉', '鸡蛋', '鸭蛋', '鹌鹑蛋', '火腿', '香肠', '培根', '羊肉', '鸭肉', '鹅肉', '虾', '螃蟹'],
-        蔬菜: ['白菜', '青菜', '黄瓜', '西红柿', '土豆', '胡萝卜', '西兰花', '菠菜', '生菜', '芹菜', '茄子', '辣椒', '豆角', '南瓜', '冬瓜'],
-        水果: ['苹果', '香蕉', '橙子', '葡萄', '西瓜', '草莓', '蓝莓', '芒果', '桃子', '梨', '猕猴桃', '柚子', '柠檬', '樱桃', '菠萝'],
-        饮品: ['牛奶', '豆浆', '果汁', '可乐', '茶', '咖啡', '酸奶', '矿泉水', '啤酒', '红酒', '奶茶', '雪碧', '橙汁', '椰汁', '蜂蜜水'],
-        豆制品: ['豆腐', '豆浆', '豆干', '腐竹', '豆皮', '豆筋', '豆腐脑', '臭豆腐', '豆豉', '腐乳', '豆腐干', '豆腐皮', '千张', '素鸡', '素火腿']
-      };
+    setIsIdentifying(true);
+    setErrorMessage(null);
+    setIdentifiedCandidates([]);
+    setSelectedFood(null);
 
-      const foodDescriptions = [
-        { keywords: ['饼', '煎饼', '烙饼', '蛋饼', '手抓饼', '葱油饼', '烧饼'], foods: ['煎饼', '鸡蛋', '葱油饼'] },
-        { keywords: ['饭', '米饭', '炒饭', '盖饭', '便当'], foods: ['米饭', '炒饭'] },
-        { keywords: ['面', '面条', '拉面', '泡面', '牛肉面', '拉面'], foods: ['面条', '牛肉面'] },
-        { keywords: ['肉', '牛肉', '鸡肉', '猪肉', '烤肉', '红烧肉'], foods: ['牛肉', '鸡肉', '猪肉', '红烧肉'] },
-        { keywords: ['菜', '青菜', '白菜', '菠菜', '蔬菜', '沙拉'], foods: ['白菜', '青菜', '菠菜', '沙拉'] },
-        { keywords: ['蛋', '鸡蛋', '煎蛋', '炒蛋', '荷包蛋', '茶叶蛋'], foods: ['鸡蛋'] },
-        { keywords: ['水果', '苹果', '香蕉', '橙子', '西瓜', '草莓'], foods: ['苹果', '香蕉', '橙子', '西瓜', '草莓'] },
-        { keywords: ['蛋糕', '面包', '甜点', '慕斯', '奶油', '芝士'], foods: ['蛋糕', '面包'] },
-        { keywords: ['汤', '粥', '稀饭', '粥类'], foods: ['粥'] },
-        { keywords: ['饺', '饺子', '水饺', '蒸饺'], foods: ['饺子'] },
-        { keywords: ['鸡', '鸡肉', '炸鸡', '鸡腿', '鸡翅'], foods: ['鸡肉', '炸鸡'] },
-        { keywords: ['鱼', '鱼', '烤鱼', '酸菜鱼', '清蒸鱼'], foods: ['鱼肉'] },
-      ];
+    try {
+      const imageBase64 = capturedImage.replace('data:image/jpeg;base64,', '');
+      
+      const results = await recognizeDish(imageBase64);
+      
+      if (results.length === 0) {
+        setErrorMessage('未识别到食物，请尝试手动搜索');
+        setIsIdentifying(false);
+        return;
+      }
 
-      let targetFoods: string[] = [];
-      for (const desc of foodDescriptions) {
-        // 简单的随机匹配，模拟AI的食物识别
-        if (Math.random() > 0.7) {
-          targetFoods = desc.foods;
-          break;
-        }
+      const candidates: IdentifiedCandidate[] = results.slice(0, 3).map(apiResult => ({
+        apiResult,
+        localFood: matchFoodFromDatabase(apiResult.name),
+      }));
+
+      setIdentifiedCandidates(candidates);
+
+      const highConfidence = candidates.find(c => c.apiResult.probability >= 0.5);
+      if (highConfidence) {
+        setSelectedFood(highConfidence.localFood || null);
       }
-      
-      if (targetFoods.length === 0) {
-        const randomCategory = Object.keys(foodCategories)[Math.floor(Math.random() * Object.keys(foodCategories).length)];
-        targetFoods = foodCategories[randomCategory as keyof typeof foodCategories];
-      }
-      
-      const randomFoodName = targetFoods[Math.floor(Math.random() * targetFoods.length)];
-      
-      const matchedFood = foods.find(f => f.name === randomFoodName) || 
-                         foods[Math.floor(Math.random() * foods.length)];
-      
-      setIdentifiedFood(matchedFood);
+
+    } catch (error) {
+      console.error('识别失败:', error);
+      setErrorMessage('识别失败，请检查网络或尝试手动搜索');
+    } finally {
       setIsIdentifying(false);
-    }, 2000);
+    }
+  };
+
+  const handleSelectCandidate = (candidate: IdentifiedCandidate) => {
+    setSelectedFood(candidate.localFood || null);
   };
 
   const calculateCalories = () => {
-    if (!identifiedFood) return 0;
-    return Math.round((identifiedFood.caloriesPer100g * parseInt(weight || '0')) / 100);
+    if (!selectedFood) return 0;
+    return Math.round((selectedFood.caloriesPer100g * parseInt(weight || '0')) / 100);
   };
 
   const handleSave = () => {
-    if (!identifiedFood) return;
+    if (!selectedFood) return;
     
     addRecord({
-      foodId: identifiedFood.id,
-      foodName: identifiedFood.name,
+      foodId: selectedFood.id,
+      foodName: selectedFood.name,
       weight: parseInt(weight) || 0,
       calories: calculateCalories(),
       mealType,
-      image: identifiedFood.image,
+      image: selectedFood.image,
     });
     
     navigate('/');
   };
+
+  const handleManualSelect = (food: Food) => {
+    setSelectedFood(food);
+    setShowManualSearch(false);
+    setSearchQuery('');
+  };
+
+  const filteredFoods = foods.filter(f => 
+    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!user) {
     navigate('/login');
@@ -279,7 +294,45 @@ export const Camera: React.FC = () => {
           </div>
           <p className="text-white/80 text-sm">对准食物拍照，或从相册选择</p>
         </div>
-      ) : !identifiedFood ? (
+      ) : showManualSearch ? (
+        <div className="bg-white rounded-t-3xl -mt-8 relative z-10 p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="relative">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索食物..."
+              className="w-full pl-11 pr-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+          
+          <button
+            onClick={() => setShowManualSearch(false)}
+            className="w-full py-2 text-gray-500 hover:text-gray-700"
+          >
+            ← 返回识别结果
+          </button>
+
+          <div className="flex flex-wrap gap-2">
+            {filteredFoods.map((food) => (
+              <button
+                key={food.id}
+                onClick={() => handleManualSelect(food)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <span>{food.image}</span>
+                <span className="text-sm font-medium text-gray-700">{food.name}</span>
+                <span className="text-xs text-gray-400">{food.caloriesPer100g}卡</span>
+              </button>
+            ))}
+          </div>
+
+          {filteredFoods.length === 0 && (
+            <p className="text-center text-gray-500 py-4">未找到匹配的食物</p>
+          )}
+        </div>
+      ) : identifiedCandidates.length === 0 ? (
         <div className="bg-white rounded-t-3xl -mt-8 relative z-10 p-6 space-y-6">
           {isIdentifying ? (
             <div className="text-center py-8">
@@ -289,6 +342,11 @@ export const Camera: React.FC = () => {
             </div>
           ) : (
             <>
+              {errorMessage && (
+                <div className="bg-red-50 text-red-600 rounded-xl p-4 mb-4">
+                  {errorMessage}
+                </div>
+              )}
               <div className="flex items-center justify-center gap-4">
                 <button
                   onClick={retakePhoto}
@@ -310,18 +368,26 @@ export const Camera: React.FC = () => {
                   <span className="text-sm font-medium">识别食物</span>
                 </button>
               </div>
+              
+              <button
+                onClick={() => setShowManualSearch(true)}
+                className="w-full py-3 text-gray-500 hover:text-gray-700 flex items-center justify-center gap-2"
+              >
+                <Search size={18} />
+                手动搜索食物
+              </button>
             </>
           )}
         </div>
-      ) : (
+      ) : selectedFood ? (
         <div className="bg-white rounded-t-3xl -mt-8 relative z-10 p-6 space-y-6 max-h-[60vh] overflow-y-auto">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl" style={{ backgroundColor: `${getThemeColor()}15` }}>
-              {identifiedFood.image}
+              {selectedFood.image}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-800">{identifiedFood.name}</h3>
-              <p className="text-gray-500">{identifiedFood.category} · {identifiedFood.caloriesPer100g} 卡/100g</p>
+              <h3 className="text-xl font-bold text-gray-800">{selectedFood.name}</h3>
+              <p className="text-gray-500">{selectedFood.category} · {selectedFood.caloriesPer100g} 卡/100g</p>
             </div>
           </div>
 
@@ -385,7 +451,7 @@ export const Camera: React.FC = () => {
 
           <div className="flex gap-3">
             <button
-              onClick={retakePhoto}
+              onClick={() => setSelectedFood(null)}
               className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition-all"
             >
               重新选择
@@ -397,6 +463,84 @@ export const Camera: React.FC = () => {
             >
               <Check size={20} />
               保存记录
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-t-3xl -mt-8 relative z-10 p-6 space-y-6">
+          <h3 className="text-lg font-bold text-gray-800 text-center">识别结果</h3>
+          
+          {identifiedCandidates.some(c => c.apiResult.probability < 0.5) && (
+            <p className="text-center text-orange-500 text-sm">
+              ⚠️ 部分识别结果置信度较低，建议手动确认
+            </p>
+          )}
+
+          <div className="space-y-3">
+            {identifiedCandidates.map((candidate, index) => {
+              const food = candidate.localFood;
+              const apiResult = candidate.apiResult;
+              const isLowConfidence = apiResult.probability < 0.5;
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleSelectCandidate(candidate)}
+                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                    isLowConfidence ? 'border-orange-200 bg-orange-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: `${getThemeColor()}15` }}>
+                      {food?.image || '🍽️'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-800">{apiResult.name}</span>
+                        {isLowConfidence && (
+                          <span className="text-xs bg-orange-200 text-orange-600 px-2 py-0.5 rounded-full">
+                            低置信度
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                        <span>置信度: {(apiResult.probability * 100).toFixed(1)}%</span>
+                        <span>|</span>
+                        <span>热量: {food?.caloriesPer100g || apiResult.calorie} 卡/100g</span>
+                        {food && food.category && (
+                          <>
+                            <span>|</span>
+                            <span>{food.category}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => setShowManualSearch(true)}
+            className="w-full py-3 text-gray-500 hover:text-gray-700 flex items-center justify-center gap-2 border border-gray-200 rounded-xl"
+          >
+            <Search size={18} />
+            以上都不是，手动搜索
+          </button>
+
+          <div className="flex gap-3">
+            <button
+              onClick={retakePhoto}
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition-all"
+            >
+              重拍
+            </button>
+            <button
+              onClick={identifyFood}
+              className="flex-1 font-medium py-3 rounded-xl transition-all border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              重新识别
             </button>
           </div>
         </div>

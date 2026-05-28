@@ -368,3 +368,21 @@ export const getFoodsByCategory = (category: string): Food[] => {
 };
 
 export const categories = ['全部', '主食', '肉类', '蔬菜', '水果', '饮品', '豆制品'];
+
+export const matchFoodFromDatabase = (apiFoodName: string): Food | null => {
+  const lowerName = apiFoodName.toLowerCase();
+  
+  let match = foods.find(f => f.name === apiFoodName);
+  if (match) return match;
+  
+  match = foods.find(f => f.name.toLowerCase() === lowerName);
+  if (match) return match;
+  
+  match = foods.find(f => f.name.includes(apiFoodName) || apiFoodName.includes(f.name));
+  if (match) return match;
+  
+  match = foods.find(f => f.name.toLowerCase().includes(lowerName) || lowerName.includes(f.name.toLowerCase()));
+  if (match) return match;
+
+  return null;
+};
